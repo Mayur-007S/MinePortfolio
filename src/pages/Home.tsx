@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -15,7 +15,8 @@ import {
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SkillBadge from '../components/SkillBadge';
-import ProjectCard from '../components/ProjectCard';
+import ProjectCard, { type Project } from '../components/ProjectCard';
+import ProjectOverviewDrawer from '../components/ProjectOverviewDrawer';
 import { useGithubProjects } from '../hooks/useGithubProjects';
 
 const skills = [
@@ -65,6 +66,7 @@ const stats = [
 
 const Home: React.FC = () => {
   const { projects, loading } = useGithubProjects();
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   
   const featuredProjects = useMemo(() => {
     return projects.filter(p => p.featured).slice(0, 3);
@@ -279,7 +281,12 @@ const Home: React.FC = () => {
               </div>
             ) : (
               featuredProjects.map((project, i) => (
-                <ProjectCard key={project.title} project={project} index={i} />
+                <ProjectCard
+                  key={project.title}
+                  project={project}
+                  index={i}
+                  onOpenOverview={setSelectedProject}
+                />
               ))
             )}
           </div>
@@ -317,6 +324,13 @@ const Home: React.FC = () => {
       </section>
 
       <Footer />
+
+      {/* Project Overview & Journey Drawer */}
+      <ProjectOverviewDrawer
+        project={selectedProject}
+        isOpen={!!selectedProject}
+        onClose={() => setSelectedProject(null)}
+      />
     </div>
   );
 };

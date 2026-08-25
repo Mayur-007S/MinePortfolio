@@ -3,13 +3,15 @@ import { motion } from 'framer-motion';
 import { Search, Loader2 } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import ProjectCard from '../components/ProjectCard';
+import ProjectCard, { type Project } from '../components/ProjectCard';
+import ProjectOverviewDrawer from '../components/ProjectOverviewDrawer';
 import { useGithubProjects } from '../hooks/useGithubProjects';
 
 const Projects: React.FC = () => {
   const { projects, loading, error } = useGithubProjects();
   const [activeTag, setActiveTag] = useState('All');
   const [search, setSearch] = useState('');
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   // Dynamically extract unique tags from projects
   const allTags = useMemo(() => {
@@ -114,7 +116,12 @@ const Projects: React.FC = () => {
             ) : filtered.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filtered.map((project, i) => (
-                  <ProjectCard key={project.title} project={project} index={i} />
+                  <ProjectCard
+                    key={project.title}
+                    project={project}
+                    index={i}
+                    onOpenOverview={setSelectedProject}
+                  />
                 ))}
               </div>
             ) : (
@@ -135,6 +142,13 @@ const Projects: React.FC = () => {
       </main>
 
       <Footer />
+
+      {/* Project Overview & Journey Drawer */}
+      <ProjectOverviewDrawer
+        project={selectedProject}
+        isOpen={!!selectedProject}
+        onClose={() => setSelectedProject(null)}
+      />
     </div>
   );
 };
