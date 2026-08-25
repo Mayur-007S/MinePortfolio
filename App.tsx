@@ -8,11 +8,14 @@ import './styles.css';
 
 import Home from './src/pages/Home';
 import NotFound from './src/pages/NotFound';
+import { useInspectProtection } from './src/hooks/useInspectProtection';
 
 const Projects = lazy(() => import('./src/pages/Projects'));
 const Contact = lazy(() => import('./src/pages/Contact'));
 
 const App: React.FC = () => {
+  useInspectProtection();
+
   return (
     <Theme appearance="dark" radius="large" scaling="100%">
       <Router>

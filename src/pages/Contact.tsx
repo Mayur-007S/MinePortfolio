@@ -21,8 +21,8 @@ const contactInfo = [
   {
     icon: <Mail className="w-5 h-5 text-[#f0883e]" />,
     label: 'Email',
-    value: 'mayurmyana111@gmai.com',
-    href: 'mailto:mayurmyana111@gmai.com',
+    value: 'mayurmyana111@gmail.com',
+    href: 'mailto:mayurmyana111@gmail.com',
   },
   {
     icon: <MapPin className="w-5 h-5 text-[#f0883e]" />,
@@ -39,8 +39,8 @@ const contactInfo = [
 ];
 
 const socials = [
-  { icon: <Github className="w-5 h-5" />, label: 'GitHub', href: 'https://github.com' },
-  { icon: <Linkedin className="w-5 h-5" />, label: 'LinkedIn', href: 'https://linkedin.com' },
+  { icon: <Github className="w-5 h-5" />, label: 'GitHub', href: 'https://github.com/Mayur-007S' },
+  { icon: <Linkedin className="w-5 h-5" />, label: 'LinkedIn', href: 'https://linkedin.com/in/mayur-myana' },
   { icon: <Twitter className="w-5 h-5" />, label: 'Twitter', href: 'https://twitter.com' },
 ];
 
@@ -70,7 +70,7 @@ const Contact: React.FC = () => {
             from_email: data.email,
             subject: data.subject,
             message: data.message,
-            to_email: 'mayurmyana111@gmai.com' // Explicitly where you want it
+            to_email: 'mayurmyana111@gmail.com' // Explicitly where you want it
           }
         }),
       });
