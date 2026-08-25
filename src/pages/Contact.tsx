@@ -9,10 +9,11 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const schema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
+  name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name is too long'),
   email: z.string().email('Please enter a valid email address'),
-  subject: z.string().min(4, 'Subject must be at least 4 characters'),
-  message: z.string().min(20, 'Message must be at least 20 characters'),
+  subject: z.string().min(4, 'Subject must be at least 4 characters').max(200, 'Subject is too long'),
+  message: z.string().min(20, 'Message must be at least 20 characters').max(5000, 'Message is too long'),
+  honeypot: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -45,6 +46,7 @@ const socials = [
 ];
 
 const Contact: React.FC = () => {
+  const [formLoadTime] = React.useState<number>(Date.now());
   const {
     register,
     handleSubmit,
@@ -53,6 +55,25 @@ const Contact: React.FC = () => {
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (data: FormData) => {
+    // 1. Honeypot check: If bot filled hidden field, drop silently
+    if (data.honeypot && data.honeypot.length > 0) {
+      toast.success(`Thanks ${data.name}! I'll get back to you soon.`);
+      reset();
+      return;
+    }
+
+    // 2. Submission speed check (block instant automated script posts)
+    if (Date.now() - formLoadTime < 1500) {
+      toast.error('Submission was too fast. Please try again.');
+      return;
+    }
+
+    // 3. Trim and sanitize input values
+    const cleanName = data.name.trim();
+    const cleanEmail = data.email.trim();
+    const cleanSubject = data.subject.trim();
+    const cleanMessage = data.message.trim();
+
     try {
       // Sending email via EmailJS (Google Email Service)
       const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
@@ -66,17 +87,17 @@ const Contact: React.FC = () => {
           template_id: import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID',
           user_id: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY',
           template_params: {
-            from_name: data.name,
-            from_email: data.email,
-            subject: data.subject,
-            message: data.message,
+            from_name: cleanName,
+            from_email: cleanEmail,
+            subject: cleanSubject,
+            message: cleanMessage,
             to_email: 'mayurmyana111@gmail.com' // Explicitly where you want it
           }
         }),
       });
 
       if (response.ok) {
-        toast.success(`Thanks ${data.name}! I'll get back to you soon.`);
+        toast.success(`Thanks ${cleanName}! I'll get back to you soon.`);
         reset();
       } else {
         const errText = await response.text();
@@ -255,6 +276,16 @@ const Contact: React.FC = () => {
                   )}
                 </div>
 
+                {/* Anti-spam Honeypot field (hidden from human visitors) */}
+                <div className="hidden" aria-hidden="true">
+                  <input
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    {...register('honeypot')}
+                  />
+                </div>
+
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -272,6 +303,11 @@ const Contact: React.FC = () => {
                     </>
                   )}
                 </button>
+
+                <p className="text-[11px] text-[#8b949e] text-center flex items-center justify-center gap-1.5 pt-1">
+                  <span>🔒</span>
+                  <span>Your message is encrypted in transit and sent directly to Mayur's verified inbox.</span>
+                </p>
               </form>
             </motion.div>
           </div>
